@@ -2,14 +2,17 @@ import 'dart:core';
 
 class Composition {
   String _id;
+  String _title;
   String _image;
   List<Track> _tracks;
 
   Composition();
 
-  Composition.from(this._id, this._image, this._tracks);
+  Composition.from(this._id, this._title, this._image, this._tracks);
 
   String get id => _id;
+
+  String get title => _title;
 
   String get image => _image;
 
