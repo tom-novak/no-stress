@@ -28,27 +28,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  onPlayPressed(String compositionId) {}
+  final items = List<Composition>.generate(
+      1000,
+      (i) => Composition.from('composition $i', 'Waterfall $i',
+          'images/stream.jpg', List<Track>()));
+  var actualPlayingId;
+
+  onPlayPressed(String compositionId) {
+    setState(() {
+      if (actualPlayingId == compositionId) {
+        actualPlayingId = null;
+      } else {
+        actualPlayingId = compositionId;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    var composition =
-        Composition.from('oewn', 'Waterfall', 'images/stream.jpg', List<Track>());
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            CompositionCard(
-              composition: composition,
-              playing: true,
-              onIconPressed: () => onPlayPressed(composition.id),
-            ),
-          ],
-        ),
-      ),
+      body: ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            var item = items[index];
+            return CompositionCard(
+              composition: item,
+              playing: item.id == actualPlayingId,
+              onIconPressed: () => onPlayPressed(item.id),
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         tooltip: 'Increment',
         child: Icon(Icons.add),
