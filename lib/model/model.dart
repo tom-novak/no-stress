@@ -20,6 +20,9 @@ class Composition {
 }
 
 class Track {
+  static const VOLUME_MIN = 0;
+  static const VOLUME_MAX = 100;
+
   String _id;
   int _volume;
   Sound _sound;
@@ -36,14 +39,12 @@ class Track {
 }
 
 class Sound {
-  String _id;
-  String _title;
-  String _image;
-  String _url;
+  final String _id;
+  final String _title;
+  final String _image;
+  final String _url;
 
-  Sound();
-
-  Sound.from(this._id, this._title, this._image, this._url);
+  const Sound.from(this._id, this._title, this._image, this._url);
 
   String get id => _id;
 

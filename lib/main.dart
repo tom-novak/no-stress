@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:no_stress/model/model.dart';
+import 'package:no_stress/player/composition_player.dart';
+import 'package:no_stress/provider/composition_provider.dart';
 import 'package:no_stress/widget/composition_card.dart';
-
-import 'model/model.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,33 +14,56 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: MyHomePage(title: 'Compositions'),
+      home: MyHomePage(
+        title: 'Compositions',
+        player: CompositionPlayer(),
+        compositionProvider: CompositionProvider(),
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage(
+      {Key key,
+      this.title,
+      @required this.player,
+      @required this.compositionProvider})
+      : super(key: key);
 
   final String title;
+  final CompositionProvider compositionProvider;
+  final CompositionPlayer player;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final items = List<Composition>.generate(
-      1000,
-      (i) => Composition.from('composition $i', 'Waterfall $i',
-          'images/stream.jpg', List<Track>()));
-  var actualPlayingId;
+  var _items;
+  var _actualPlayingId;
 
-  onPlayPressed(String compositionId) {
+  @override
+  void initState() {
+    _items = widget.compositionProvider.getAll();
+  }
+
+
+  @override
+  void dispose() {
+    widget.player.stop();
+    widget.player.dispose();
+  }
+
+  onPlayPressed(Composition composition) {
     setState(() {
-      if (actualPlayingId == compositionId) {
-        actualPlayingId = null;
+      if (_actualPlayingId == composition.id) {
+        _actualPlayingId = null;
+        widget.player.stop();
       } else {
-        actualPlayingId = compositionId;
+        _actualPlayingId = composition.id;
+        widget.player.composition = composition;
+        widget.player.playOrPause();
       }
     });
   }
@@ -51,13 +75,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.builder(
-          itemCount: items.length,
+          itemCount: _items.length,
           itemBuilder: (context, index) {
-            var item = items[index];
+            var item = _items[index];
             return CompositionCard(
               composition: item,
-              playing: item.id == actualPlayingId,
-              onIconPressed: () => onPlayPressed(item.id),
+              playing: item.id == _actualPlayingId,
+              onIconPressed: () => onPlayPressed(item),
             );
           }),
       floatingActionButton: FloatingActionButton(
