@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_stress/model/model.dart';
 import 'package:no_stress/player/composition_player.dart';
 import 'package:no_stress/provider/composition_provider.dart';
+import 'package:no_stress/theme/theme.dart';
 import 'package:no_stress/widget/composition_card.dart';
 
 void main() => runApp(MyApp());
@@ -9,15 +11,20 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'No Stress',
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-      ),
-      home: MyHomePage(
-        title: 'Compositions',
-        player: CompositionPlayer(),
-        compositionProvider: CompositionProvider(),
+    return BlocProvider(
+      create: (_) => ThemeBloc(),
+      child: BlocBuilder<ThemeBloc, ThemeData>(
+        builder: (_, theme) {
+          return MaterialApp(
+            title: 'No Stress',
+            theme: theme,
+            home: MyHomePage(
+              title: 'Compositions',
+              player: CompositionPlayer(),
+              compositionProvider: CompositionProvider(),
+            ),
+          );
+        },
       ),
     );
   }
@@ -48,7 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _items = widget.compositionProvider.getAll();
   }
 
-
   @override
   void dispose() {
     widget.player.stop();
@@ -59,10 +65,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       if (_actualPlayingId == composition.id) {
         _actualPlayingId = null;
+        context.bloc<ThemeBloc>().add(ThemeEvent.toggle);
         widget.player.stop();
       } else {
         _actualPlayingId = composition.id;
         widget.player.composition = composition;
+        context.bloc<ThemeBloc>().add(ThemeEvent.toggle);
         widget.player.playOrPause();
       }
     });
